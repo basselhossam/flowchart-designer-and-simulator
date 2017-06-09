@@ -1,0 +1,79 @@
+select.h
+---------
+#pragma once
+#include "Action.h"
+#include "../Statements/Statement.h"
+class Select :
+	public Action
+{
+	Statement *ptr;
+	Point p;
+	
+public:
+	Select(ApplicationManager *pAppManager);
+	void ReadActionParameters();
+	void Execute();
+};
+------------------------------------------------------------------------------------------------
+select.cpp
+-----------
+Select::Select(ApplicationManager *pAppManager) :Action(pAppManager)
+{
+	
+}
+
+void Select::ReadActionParameters(){
+
+	Point p;
+	Input *pIn = pManager->GetInput();
+	Output *pOut = pManager->GetOutput();
+	pIn->GetPointClicked(p);
+	ptr = pManager->GetStatement(p);
+	
+}
+
+void Select::Execute(){
+
+	ReadActionParameters();
+
+	if (ptr != NULL){
+		if (pManager->GetSelectedStatement() != NULL)
+			pManager->GetSelectedStatement()->SetSelected(false);
+		ptr->SetSelected(true);
+		pManager->SetSelectedStatement(ptr);
+	}
+	else{
+		if (pManager->GetSelectedStatement()!=NULL)
+			pManager->GetSelectedStatement()->SetSelected(false);
+		pManager->SetSelectedStatement(NULL);
+	}
+}
+
+----------------------------------------------------------------------------------------------------
+in appmanager.cpp
+------------------
+get useraction function:
+
+case SELECT:
+			///create Select Action here
+			pAct = new Select(this);
+			break;
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function getstatement :
+you have to add bool function check_range in your class to check if the point belong to you shape 
+I think Amr post it on group
+
+Statement *ApplicationManager::GetStatement(Point P) const
+{
+	//If this point P(x,y) belongs to a statement return a pointer to it.
+	//otherwise, return NULL
+
+
+	///Add your code here to search for a statement given a point P(x,y)
+	for (int i = 0; i < StatCount; i++){
+		if (StatList[i]->check_range(P))
+			return StatList[i];
+	}
+	return NULL;
+}
